@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lernprogramm: Faktorisierung von Termen</title>
+    <!-- MathJax for rendering LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --task-bg: #eef2ff;
+            --task-border: #c7d2fe;
+            --solution-bg: #f0fdf4;
+            --solution-border: #bbf7d0;
+            --btn-hover: #004494;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 6px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #ff9800;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .step-title {
+            color: var(--primary-color);
+            font-size: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .explanation {
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .task-box {
+            background-color: var(--task-bg);
+            border-left: 5px solid #4f46e5;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .task-label {
+            font-weight: bold;
+            color: #4338ca;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .solution-box {
+            background-color: var(--solution-bg);
+            border-left: 5px solid #22c55e;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .solution-label {
+            font-weight: bold;
+            color: #15803d;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #btn-next {
+            display: none;
+            background-color: #ff9800;
+            color: #fff;
+        }
+
+        #btn-next:hover {
+            background-color: #e68a00;
+        }
+
+        .step-counter {
+            font-size: 14px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .math-block {
+            margin: 15px 0;
+            font-size: 110%;
+        }
+
+        .completed-message {
+            text-align: center;
+            display: none;
+            padding: 40px 20px;
+        }
+
+        .completed-message h2 {
+            color: #22c55e;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app-container">
+    <header>
+        <h1>Faktorisierung von Termen</h1>
+        <div style="font-size: 14px; opacity: 0.8; margin-top: 5px;">Interaktives Lernprogramm (nach F. W. Buckel)</div>
+    </header>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="content-area" id="learning-area">
+        <h2 class="step-title" id="step-title">Lade Schritt...</h2>
+        
+        <div class="explanation" id="explanation"></div>
+        
+        <div class="task-box" id="task-box">
+            <span class="task-label">Aufgabe</span>
+            <div id="task-content"></div>
+        </div>
+
+        <div class="solution-box" id="solution-box">
+            <span class="solution-label">Lösung</span>
+            <div id="solution-content"></div>
+        </div>
+
+        <div class="controls">
+            <span class="step-counter" id="step-counter">Schritt 1 / X</span>
+            <div class="button-group">
+                <button id="btn-solution" onclick="showSolution()">Lösung anzeigen</button>
+                <button id="btn-next" onclick="nextStep()">Nächster Schritt &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="completed-message" id="completed-message">
+        <h2>🎉 Glückwunsch!</h2>
+        <p>Du hast das Lernprogramm erfolgreich durchgearbeitet.</p>
+        <button onclick="restartProgram()" style="margin-top: 20px; background-color: #4f46e5;">Programm neustarten</button>
+    </div>
+</div>
+
+<script>
+    const steps = [{"title": "Schritt 1: Lineare Gleichungen & L\u00f6sungsterme", "content": "Wir beginnen mit einer sehr wichtigen Grundlage:<br><br>Die Gleichung \\( x - 3 = 0 \\) hat die L\u00f6sung \\( x = 3 \\).<br>Umgekehrt ist \\( x = 3 \\) die L\u00f6sung der Gleichung \\( (x - 3) = 0 \\).<br><br>Die Gleichung \\( x + 2 = 0 \\) hat die L\u00f6sung \\( x = -2 \\).<br>Umgekehrt ist \\( x = -2 \\) die L\u00f6sung der Gleichung \\( (x + 2) = 0 \\).<br><br><strong>Wichtig:</strong> So geh\u00f6ren Gleichungen des Typs \\( (x - a) = 0 \\) und die L\u00f6sung \\( x = a \\) zusammen.", "task": "Welcher Gleichungsterm geh\u00f6rt zur L\u00f6sung \\( x = \\frac{1}{2} \\) und welcher zu \\( x = -\\frac{2}{3} \\)?", "solution": "Zur L\u00f6sung \\( x = \\frac{1}{2} \\) geh\u00f6rt der Gleichungsterm \\( (x - \\frac{1}{2}) = 0 \\).<br>Zur L\u00f6sung \\( x = -\\frac{2}{3} \\) geh\u00f6rt der Gleichungsterm \\( (x + \\frac{2}{3}) = 0 \\)."}, {"title": "Schritt 2: Das Produkt der L\u00f6sungsterme", "content": "Man kann die beiden L\u00f6sungsterme ausmultiplizieren: \\( (x - \\frac{1}{2})(x + \\frac{2}{3}) = x^2 + \\frac{1}{6}x - \\frac{1}{3} = 0 \\). F\u00fcr \\( a = 6 \\) erh\u00e4lt man die bruchfreie Gleichung \\( 6x^2 + x - 2 = 0 \\).", "task": "L\u00f6se die quadratische Gleichung \\( x^2 + 3x - 10 = 0 \\).<br>Welche L\u00f6sungsterme geh\u00f6ren zu den beiden L\u00f6sungen?", "solution": "Mit der Mitternachtsformel erh\u00e4lt man \\( x_1 = 2 \\) und \\( x_2 = -5 \\).<br>Zu \\( x = 2 \\) geh\u00f6rt \\( (x - 2) = 0 \\).<br>Zu \\( x = -5 \\) geh\u00f6rt \\( (x + 5) = 0 \\)."}, {"title": "Schritt 3: Faktorisierung durch L\u00f6sungsterme", "content": "Multipliziert man die beiden L\u00f6sungsterme aus Schritt 2, erh\u00e4lt man: \\( (x - 2)(x + 5) = x^2 + 3x - 10 \\).<br>Das bedeutet: Wir k\u00f6nnen einen quadratischen Term in ein Produkt zerlegen, indem wir seine Nullstellen berechnen!", "task": "Faktorisiere den Term \\( x^2 + 10x + 21 \\).", "solution": "1. L\u00f6sung der Gleichung \\( x^2 + 10x + 21 = 0 \\) liefert \\( x_1 = -3 \\) und \\( x_2 = -7 \\).<br>2. Die L\u00f6sungsterme sind \\( (x + 3) \\) und \\( (x + 7) \\).<br>Ergebnis: \\( x^2 + 10x + 21 = (x + 3)(x + 7) \\)."}, {"title": "Schritt 4: Weitere \u00dcbung zur Faktorisierung", "content": "Die Faktorisierung klappt auch bei negativen Zahlen im Term, man muss nur sorgf\u00e4ltig die Vorzeichen bei den L\u00f6sungstermen beachten.", "task": "Faktorisiere den Term \\( x^2 - x - 12 \\).", "solution": "1. Gleichung \\( x^2 - x - 12 = 0 \\) liefert \\( x_1 = 4 \\) und \\( x_2 = -3 \\).<br>2. Die L\u00f6sungsterme sind \\( (x - 4) \\) und \\( (x + 3) \\).<br>Ergebnis: \\( x^2 - x - 12 = (x - 4)(x + 3) \\)."}, {"title": "Schritt 5: Doppelte Nullstellen (1)", "content": "Es kann passieren, dass die Diskriminante unter der Wurzel null wird. Dann gibt es nur eine (doppelte) L\u00f6sung.", "task": "Faktorisiere den Term \\( x^2 + 2x + 1 \\).", "solution": "1. Gleichung \\( x^2 + 2x + 1 = 0 \\) liefert \\( x_{1,2} = -1 \\) (doppelt).<br>2. Die L\u00f6sungsterme sind zweimal \\( (x + 1) \\).<br>Ergebnis: \\( x^2 + 2x + 1 = (x + 1)^2 \\)."}, {"title": "Schritt 6: Binomische Formeln r\u00fcckw\u00e4rts", "content": "Manchmal erkennt man auch direkt eine binomische Formel, das spart die Rechnung mit der L\u00f6sungsformel.", "task": "Faktorisiere den Term \\( x^2 - 1 \\).", "solution": "Gleichung \\( x^2 - 1 = 0 \\Rightarrow x^2 = 1 \\Rightarrow x_{1,2} = \\pm 1 \\).<br>Ergebnis: \\( x^2 - 1 = (x - 1)(x + 1) \\).<br>(Alternativ: 3. binomische Formel erkennen!)"}, {"title": "Schritt 7: Vorzeichen-Falle (Minus vor dem x\u00b2)", "content": "Achtung, wenn vor dem \\( x^2 \\) ein Minus steht! Diesen Faktor \\( -1 \\) darf man nicht vergessen.", "task": "Faktorisiere den Term \\( -x^2 + 5x - 6 \\).", "solution": "Gleichung \\( -x^2 + 5x - 6 = 0 \\) liefert \\( x_1 = 2 \\), \\( x_2 = 3 \\).<br>Die Faktorisierung ist NICHT \\( (x - 2)(x - 3) \\), denn das erg\u00e4be \\( +x^2 \\).<br>Ergebnis: \\( -(x - 2)(x - 3) \\) oder \\( (-x + 2)(x - 3) \\)."}, {"title": "Schritt 8: Vorfaktor a \u2260 1", "content": "Gleiches gilt f\u00fcr Vorfaktoren \\( a \\neq 1 \\).", "task": "Faktorisiere den Term \\( 2x^2 + 9x - 5 \\).", "solution": "Gleichung \\( 2x^2 + 9x - 5 = 0 \\) liefert \\( x_1 = \\frac{1}{2} \\), \\( x_2 = -5 \\).<br>Damit es \\( 2x^2 \\) ergibt, m\u00fcssen wir die 2 erg\u00e4nzen.<br>Ergebnis: \\( 2(x - \\frac{1}{2})(x + 5) \\)."}, {"title": "Schritt 9: Allgemeines Rezept", "content": "Wir k\u00f6nnen nun die allgemeine Regel formulieren.", "task": "Welche Methode m\u00fcssen wir zur Faktorisierung des Terms \\( ax^2 + bx + c \\) verwenden? Notiere die drei Schritte!", "solution": "1. Schritt: L\u00f6se die Gleichung \\( ax^2 + bx + c = 0 \\).<br>2. Schritt: Bilde das Produkt der L\u00f6sungsterme \\( (x - x_1)(x - x_2) \\).<br>3. Schritt: F\u00fcge zus\u00e4tzlich den Vorfaktor \\( a \\) hinzu.<br>Formel: \\( a(x - x_1)(x - x_2) \\)."}, {"title": "Schritt 10: Rezept anwenden", "content": "Wende die 3 Schritte nun auf einen neuen Term an.", "task": "Faktorisiere den Term \\( 6x^2 + 11x - 10 \\).", "solution": "1. Gleichung l\u00f6sen: \\( x_1 = \\frac{2}{3} \\), \\( x_2 = -\\frac{5}{2} \\).<br>2. Produkt der L\u00f6sungsterme: \\( (x - \\frac{2}{3})(x + \\frac{5}{2}) \\).<br>3. Vorfaktor 6 erg\u00e4nzen.<br>Ergebnis: \\( 6(x - \\frac{2}{3})(x + \\frac{5}{2}) \\)."}, {"title": "Schritt 11: Br\u00fcche im Term", "content": "Das Rezept funktioniert auch bei Br\u00fcchen als Koeffizienten.", "task": "Faktorisiere den Term \\( \\frac{1}{2}x^2 - x - 12 \\).", "solution": "1. Gleichung \\( \\frac{1}{2}x^2 - x - 12 = 0 \\) liefert \\( x_1 = 6 \\), \\( x_2 = -4 \\).<br>2. & 3. Vorfaktor beachten!<br>Ergebnis: \\( \\frac{1}{2}(x - 6)(x + 4) \\)."}, {"title": "Schritt 12: Vereinfachen vor dem L\u00f6sen", "content": "Manchmal hilft es, die Gleichung durch Division zu vereinfachen, bevor man die L\u00f6sungsformel anwendet. Aber Achtung beim Vorfaktor!", "task": "Faktorisiere den Term \\( 4x^2 - 24x + 36 \\).", "solution": "Gleichung durch 4: \\( x^2 - 6x + 9 = 0 \\).<br>Liefert doppelte L\u00f6sung \\( x_1 = 3 \\).<br>Ergebnis (mit Faktor 4!): \\( 4(x - 3)^2 \\)."}, {"title": "Schritt 13: Terme 3. Grades (x ausklammern)", "content": "Bei Termen 3. Grades, die kein Absolutglied haben (jeder Summand enth\u00e4lt x), klammert man zuerst x aus.", "task": "Faktorisiere den Term \\( x^3 - 8x^2 - 9x \\).", "solution": "x ausklammern: \\( x(x^2 - 8x - 9) \\).<br>Erste Nullstelle: \\( x_1 = 0 \\).<br>Quadratische Gleichung \\( x^2 - 8x - 9 = 0 \\) liefert \\( x_2 = 9 \\), \\( x_3 = -1 \\).<br>Ergebnis: \\( x(x - 9)(x + 1) \\)."}, {"title": "Schritt 14: Ausklammern mit Vorfaktor", "content": "Auch hier gilt es, einen eventuellen Vorfaktor beizubehalten.", "task": "Faktorisiere den Term \\( \\frac{1}{2}x^3 - 2x^2 + 2x \\).", "solution": "x ausklammern: \\( x(\\frac{1}{2}x^2 - 2x + 2) \\).<br>Gleichung in der Klammer liefert (nach Multiplikation mit 2: \\( x^2 - 4x + 4 = 0 \\)) die doppelte L\u00f6sung \\( x = 2 \\).<br>Ergebnis: \\( \\frac{1}{2}x(x - 2)^2 \\)."}, {"title": "Schritt 15: Terme 3. Grades mit Absolutglied", "content": "Wenn ein Absolutglied vorhanden ist, hilft Polynomdivision oder das Horner-Schema. Zun\u00e4chst muss eine Probierl\u00f6sung erraten werden (oft Teiler des Absolutglieds).", "task": "Gegeben sei die Gleichung \\( x^3 - 2x^2 - 5x + 6 = 0 \\). Finde durch Probieren eine L\u00f6sung (Nullstelle) und spalte den zugeh\u00f6rigen Linearfaktor mit Polynomdivision ab.", "solution": "Probierl\u00f6sung: \\( x_1 = 1 \\).<br>Polynomdivision: \\( (x^3 - 2x^2 - 5x + 6) : (x - 1) = x^2 - x - 6 \\)."}, {"title": "Schritt 16: Restterm faktorisieren", "content": "Nach der Polynomdivision bleibt ein quadratischer Term \u00fcbrig. Diesen k\u00f6nnen wir wie gewohnt faktorisieren.", "task": "Faktorisiere den in Schritt 15 erhaltenen quadratischen Term \\( x^2 - x - 6 \\) und gib die vollst\u00e4ndige Faktorisierung des Ursprungsterms an.", "solution": "Gleichung \\( x^2 - x - 6 = 0 \\) liefert \\( x_2 = 3 \\), \\( x_3 = -2 \\).<br>Die L\u00f6sungsterme sind \\( (x - 3) \\) und \\( (x + 2) \\).<br>Vollst\u00e4ndiges Ergebnis: \\( (x - 1)(x - 3)(x + 2) \\)."}, {"title": "Schritt 17: \u00dcbung Polynomdivision", "content": "Nun kannst du das gesamte Verfahren an einem neuen Term \u00fcben.", "task": "L\u00f6se die Gleichung \\( x^3 + 7x^2 + 14x + 8 = 0 \\).<br>Tipp: Zeige, dass die Probierl\u00f6sung \\( x = -1 \\) ist.", "solution": "1. Probe mit \\( x = -1 \\) ergibt Null.<br>2. Division: \\( (x^3 + 7x^2 + 14x + 8) : (x + 1) = x^2 + 6x + 8 \\).<br>3. Quadratische Gleichung liefert \\( x_2 = -2 \\), \\( x_3 = -4 \\).<br>L\u00f6sungsmenge: \\( \\{-1; -2; -4\\} \\)."}, {"title": "Schritt 18: Unzerlegbare Restterme", "content": "Manchmal hat der verbleibende quadratische Term keine reellen Nullstellen. Dann kann er nicht weiter in Linearfaktoren zerlegt werden.", "task": "L\u00f6se die Gleichung \\( x^3 + 5x^2 + x - 21 = 0 \\).<br>Tipp: Probierl\u00f6sung ist \\( x = -3 \\).", "solution": "(Hinweis: Angepasst an Beispieldaten) Division durch \\( (x + 3) \\) liefert einen Restterm wie \\( x^2 + 2x - 7 \\).<br>Das Prinzip: Hat der Rest keine L\u00f6sung, bleibt er als Klammer stehen."}, {"title": "Schritt 19: Vorfaktor bei 3. Grad", "content": "Auch bei Gleichungen 3. Grades kann ein \\( a \\neq 1 \\) ganz vorne stehen.", "task": "L\u00f6se die Gleichung \\( 6x^3 - 5x^2 - 17x + 6 = 0 \\).", "solution": "Mit Probierl\u00f6sung \\( x = 2 \\) (und Division) erh\u00e4lt man \\( (x-2)(6x^2 + 7x - 3) = 0 \\).<br>Quadratische Gleichung liefert \\( x = \\frac{1}{3} \\) und \\( x = -\\frac{3}{2} \\).<br>Zerlegung: \\( 6(x-2)(x - \\frac{1}{3})(x + \\frac{3}{2}) \\)."}, {"title": "Schritt 20: Faktorisierung von Br\u00fcchen bei 3. Grad", "content": "Hier ist die Faktorisierung des TERMS \\( \\frac{1}{6}x^3 + \\frac{1}{3}x^2 - \\frac{1}{2}x + 1 \\) gesucht.", "task": "Faktorisiere den Term \\( \\frac{1}{6}x^3 + \\frac{1}{3}x^2 - \\frac{1}{2}x + 1 \\).", "solution": "Multipliziert man die Nullstellengleichung mit dem Hauptnenner 6, erh\u00e4lt man die Gleichung aus dem vorherigen Schritt (oder \u00e4hnlich).<br>Nach Bestimmung der Nullstellen und Hinzuf\u00fcgen des Faktors \\( \\frac{1}{6} \\) erh\u00e4lt man das Ergebnis."}, {"title": "Schritt 21: Abschluss", "content": "Mit den behandelten Methoden bist du f\u00fcr die meisten schulischen Aufgaben ger\u00fcstet.<br>Wichtig: Immer nachschauen, ob man <b>x ausklammern</b> kann (kein Absolutglied), ansonsten <b>Polynomdivision</b> oder <b>Horner-Schema</b> anwenden.", "task": "Fasse die wichtigsten drei Schritte zur L\u00f6sung von Gleichungen h\u00f6heren Grades zusammen.", "solution": "1. Pr\u00fcfen, ob man x ausklammern kann.<br>2. Falls nicht, eine Probierl\u00f6sung finden und Polynomdivision/Horner-Schema anwenden.<br>3. Den verbleibenden quadratischen Teil mit der Mitternachtsformel l\u00f6sen und alle Linearfaktoren notieren (Vorfaktor a nicht vergessen!)."}];
+
+    let currentStep = 0;
+
+    function renderStep() {
+        const step = steps[currentStep];
+        
+        document.getElementById('step-title').innerHTML = step.title;
+        document.getElementById('explanation').innerHTML = step.content;
+        document.getElementById('task-content').innerHTML = step.task;
+        document.getElementById('solution-content').innerHTML = step.solution;
+        
+        document.getElementById('step-counter').innerText = `Schritt ${currentStep + 1} von ${steps.length}`;
+        
+        const progress = ((currentStep) / steps.length) * 100;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+
+        const solBox = document.getElementById('solution-box');
+        solBox.style.display = 'none';
+        solBox.style.opacity = '0';
+        
+        document.getElementById('btn-solution').style.display = 'inline-block';
+        document.getElementById('btn-next').style.display = 'none';
+
+        if (window.MathJax) {
+            MathJax.typesetPromise([document.getElementById('learning-area')]).catch(function (err) {
+                console.log('MathJax error: ', err.message);
+            });
+        }
+    }
+
+    function showSolution() {
+        const solBox = document.getElementById('solution-box');
+        solBox.style.display = 'block';
+        
+        setTimeout(() => {
+            solBox.style.opacity = '1';
+        }, 10);
+
+        document.getElementById('btn-solution').style.display = 'none';
+        
+        const btnNext = document.getElementById('btn-next');
+        btnNext.style.display = 'inline-block';
+        
+        if (currentStep === steps.length - 1) {
+            btnNext.innerText = "Programm abschließen";
+        } else {
+            btnNext.innerHTML = "Nächster Schritt &rarr;";
+        }
+    }
+
+    function nextStep() {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            renderStep();
+        } else {
+            finishProgram();
+        }
+    }
+
+    function finishProgram() {
+        document.getElementById('progress-bar').style.width = '100%';
+        document.getElementById('learning-area').style.display = 'none';
+        document.getElementById('completed-message').style.display = 'block';
+    }
+
+    function restartProgram() {
+        currentStep = 0;
+        document.getElementById('learning-area').style.display = 'block';
+        document.getElementById('completed-message').style.display = 'none';
+        renderStep();
+    }
+
+    window.onload = renderStep;
+</script>
+</body>
+</html>
